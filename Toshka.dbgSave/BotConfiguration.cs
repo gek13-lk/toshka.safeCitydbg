@@ -1,4 +1,4 @@
-﻿namespace Toshka.SafeCity
+﻿namespace Toshka.dbgSave
 {
     public class BotConfiguration
     {

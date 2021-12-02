@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using Telegram.Bot;
-using Toshka.SafeCity.Model.Command;
-using Toshka.SafeCity.Services.Abstraction;
+using Toshka.dbgSave.Services.Abstraction;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace Toshka.SafeCity.Services
+namespace Toshka.dbgSave.Services
 {
     public class BotService : IBotService
     {

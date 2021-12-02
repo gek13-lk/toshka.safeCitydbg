@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Toshka.SafeCity.Hub
+namespace Toshka.dbgSave.Hub
 {
     public class DetectionHub : Microsoft.AspNetCore.SignalR.Hub
     {

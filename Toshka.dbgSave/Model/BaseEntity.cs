@@ -1,4 +1,4 @@
-﻿namespace Toshka.SafeCity.Model
+﻿namespace Toshka.dbgSave.Model
 {
     public abstract class BaseEntity
     {
