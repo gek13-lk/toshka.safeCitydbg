@@ -10,7 +10,7 @@ using Toshka.dbgSave.Model;
 using Toshka.dbgSave.Services;
 using Toshka.dbgSave.Services.Abstraction;
 
-namespace Toshka.SafeCity.Controllers
+namespace Toshka.dbgSave.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -37,6 +37,10 @@ namespace Toshka.SafeCity.Controllers
         {
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
             {
+                string chatId = update.Message.Chat.Id.ToString();
+
+                TelegramUser user = _context.TelegramUsers.Where(e => e.ChatId == chatId).Single();
+
                 if (update.Message.Text == "/create_event")
                 {
                     _botService.Client.SendTextMessageAsync(update.Message.From.Id, @$"Ответ create event").GetAwaiter().GetResult();
@@ -45,9 +49,6 @@ namespace Toshka.SafeCity.Controllers
                 if (update.Message.Text == "/get_notifications_all" ||
                     update.Message.Text == "/get_notifications_graffiti")
                 {
-                    string chatId = update.Message.Chat.Id.ToString();
-
-                    TelegramUser user = _context.TelegramUsers.Where(e => e.ChatId == chatId).Single();
                     if (user == null)
                     {
                         user = new TelegramUser();
@@ -58,6 +59,21 @@ namespace Toshka.SafeCity.Controllers
                     }
 
                     _botService.Client.SendTextMessageAsync(update.Message.From.Id, @$"Вы уже есть в наблюдателях").GetAwaiter().GetResult();
+                }
+
+                if (update.Message.Text == "/unset")
+                {
+                    if (user != null)
+                    {
+                        _context.TelegramUsers.Remove(user);
+                        _context.SaveChanges();
+                        _botService.Client.SendTextMessageAsync(update.Message.From.Id, @$"Вы удалены из наблюдателей").GetAwaiter().GetResult();
+                    }
+                }
+
+                if (update.Message.Text == "/phones")
+                {
+                    _botService.Client.SendTextMessageAsync(update.Message.From.Id, @$"Удалены из наблюдателей").GetAwaiter().GetResult();
                 }
             }
 

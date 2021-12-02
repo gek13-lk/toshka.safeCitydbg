@@ -13,7 +13,7 @@ using System.Data;
 using Toshka.dbgSave.Services.Abstraction;
 using Telegram.Bot;
 
-namespace Toshka.SafeCity.Controllers
+namespace Toshka.dbgSave.Controllers
 {
     [ApiController]
     [Route("[controller]")]
