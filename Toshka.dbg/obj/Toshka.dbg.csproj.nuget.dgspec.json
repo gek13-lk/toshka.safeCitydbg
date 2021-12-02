@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\slam2\\source\\repos\\safeCity\\safeCity\\safeCity.csproj": {}
+    "C:\\Users\\slam2\\source\\repos\\toshka.safeCitydbg\\safeCity\\Toshka.dbg.csproj": {}
   },
   "projects": {
-    "C:\\Users\\slam2\\source\\repos\\safeCity\\safeCity\\safeCity.csproj": {
+    "C:\\Users\\slam2\\source\\repos\\toshka.safeCitydbg\\safeCity\\Toshka.dbg.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\slam2\\source\\repos\\safeCity\\safeCity\\safeCity.csproj",
-        "projectName": "safeCity",
-        "projectPath": "C:\\Users\\slam2\\source\\repos\\safeCity\\safeCity\\safeCity.csproj",
+        "projectUniqueName": "C:\\Users\\slam2\\source\\repos\\toshka.safeCitydbg\\safeCity\\Toshka.dbg.csproj",
+        "projectName": "Toshka.dbg",
+        "projectPath": "C:\\Users\\slam2\\source\\repos\\toshka.safeCitydbg\\safeCity\\Toshka.dbg.csproj",
         "packagesPath": "C:\\Users\\slam2\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\slam2\\source\\repos\\safeCity\\safeCity\\obj\\",
+        "outputPath": "C:\\Users\\slam2\\source\\repos\\toshka.safeCitydbg\\safeCity\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\slam2\\AppData\\Roaming\\NuGet\\NuGet.Config",
