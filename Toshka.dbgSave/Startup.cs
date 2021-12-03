@@ -38,7 +38,7 @@ namespace Toshka.dbgSave
             services.AddSignalR().AddMessagePackProtocol();
             services.AddControllers().AddNewtonsoftJson();
             services.AddControllers();
-
+            services.AddScoped<ICameraService, CameraService>();
             services.AddSingleton<IBotService, BotService>();
             services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
             services.AddSwaggerGen(c =>

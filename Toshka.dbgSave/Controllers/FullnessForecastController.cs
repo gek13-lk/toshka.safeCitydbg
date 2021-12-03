@@ -39,14 +39,15 @@ namespace Toshka.dbgSave.Controllers
             ModelOutput forecast = forecastEngineCopy.Predict(7);
 
             ForecastModel predictionModel = new ForecastModel();
-            predictionModel.dayBefore = 0;
+            predictionModel.DayBefore = 0;
 
             foreach (var prediction in forecast.ForecastedRentals)
             {
-                predictionModel.dayBefore++;
+                predictionModel.DayBefore++;
 
                 if (prediction >= 70)
                 {
+                    predictionModel.Date = DateTime.Now.AddDays(predictionModel.DayBefore);
                     predictionModel.Fullness = prediction;
                     break;
                 }
@@ -59,6 +60,7 @@ namespace Toshka.dbgSave.Controllers
         [Route("train")]
         public async Task<IActionResult> Train()
         {
+            //TODO: add garbage id, holiday, day of week to model
             string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
             string modelPath = Path.Combine(rootDir, "MLModel.zip");
 

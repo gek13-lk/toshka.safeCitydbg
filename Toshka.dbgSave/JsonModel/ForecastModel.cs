@@ -7,7 +7,8 @@ namespace Toshka.dbgSave.JsonModel
 {
     public class ForecastModel
     {
-        public float dayBefore { get; set; }
+        public DateTime Date { get; set; }
+        public float DayBefore { get; set; }
         public float Fullness { get; set; }
     }
 }
