@@ -18,8 +18,9 @@ namespace Toshka.dbgSave.NeuralNetwork.DetectorTools
         private readonly object _sessionLocker = new object();
         private int _minIntersectPercentage = 80;
 
-        private Dictionary<int, string> _nameClasess = new Dictionary<int, string>
+        private Dictionary<int, string> _nameGeneralClasess = new Dictionary<int, string>
         {
+            // Общая
             [1] = "Дым",
             [2] = "Дым",
             [3] = "Дым",
@@ -33,6 +34,34 @@ namespace Toshka.dbgSave.NeuralNetwork.DetectorTools
             [11] = "Мусорный пакет",
             [12] = "Мусор",
             [13] = "Собака"
+
+            // Типы мусора
+            /* [1] = "Пластик",
+             [2] = "Бумага",
+             [3] = "Стекло",
+             [4] = "Металл"*/
+
+            // Маски
+            /*[1] = "С маской",
+            [2] = "Без маски",
+            [3] = "Неправильно надета"*/
+        };
+
+        private Dictionary<int, string> _nameTrashTypeClasess = new Dictionary<int, string>
+        {
+            // Типы мусора
+             [1] = "Пластик",
+             [2] = "Бумага",
+             [3] = "Стекло",
+             [4] = "Металл"
+        };
+
+        private Dictionary<int, string> _nameMaskClasess = new Dictionary<int, string>
+        {
+            // Маски
+            [1] = "С маской",
+            [2] = "Без маски",
+            [3] = "Неправильно надета"
         };
 
         public class ImageFrame
@@ -67,7 +96,7 @@ namespace Toshka.dbgSave.NeuralNetwork.DetectorTools
 
         }
 
-        public DetectorMatch DetectObjects(Bitmap frameNow, Bitmap framePrev, int numberFrame)
+        public DetectorMatch DetectObjects(Bitmap frameNow, Bitmap framePrev, int numberFrame, int typeNetwork)
         {
             DetectedObjects = new List<DetectedObject>();
 
@@ -132,11 +161,25 @@ namespace Toshka.dbgSave.NeuralNetwork.DetectorTools
                     var probability = Math.Round(precision, 2);
                     var box = new Rectangle(left, top, right - left, bottom - top);
 
-                        DetectedObjects.Add(new DetectedObject
+                    String className = "";
+                    if (typeNetwork == 1)
+                    {
+                        className = _nameGeneralClasess[classIndex];
+                    }
+                    if (typeNetwork == 2)
+                    {
+                        className = _nameTrashTypeClasess[classIndex];
+                    }
+                    if (typeNetwork == 3)
+                    {
+                        className = _nameMaskClasess[classIndex];
+                    }
+
+                    DetectedObjects.Add(new DetectedObject
                         {
                             Rectangle = box,
                             ClassId = classIndex,
-                            ClassName = _nameClasess[classIndex],
+                            ClassName = className,
                             Probability = probability
                         }
                         );

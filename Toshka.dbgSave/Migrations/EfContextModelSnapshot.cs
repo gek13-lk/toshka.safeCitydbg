@@ -58,6 +58,45 @@ namespace Toshka.dbgSave.Migrations
                     b.ToTable("Cameras");
                 });
 
+            modelBuilder.Entity("Toshka.dbgSave.Model.CameraFilterMarkup", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CameraId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("dlx")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("dly")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("drx")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("dry")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ulx")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("uly")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("urx")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ury")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CameraFilterMarkups");
+                });
+
             modelBuilder.Entity("Toshka.dbgSave.Model.Event", b =>
                 {
                     b.Property<long>("Id")
@@ -88,6 +127,18 @@ namespace Toshka.dbgSave.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("Toshka.dbgSave.Model.Export", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Exports");
+                });
+
             modelBuilder.Entity("Toshka.dbgSave.Model.Garbage", b =>
                 {
                     b.Property<long>("Id")
@@ -111,6 +162,9 @@ namespace Toshka.dbgSave.Migrations
                         .HasColumnType("double precision");
 
                     b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Video")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

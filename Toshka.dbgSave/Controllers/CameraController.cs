@@ -217,7 +217,7 @@ namespace Toshka.dbgSave.Controllers
                 new NeuralNetwork.DetectorTools.NeuralNetwork(System.IO.File.ReadAllBytes(System.IO.Path.Combine(Environment.CurrentDirectory, "model.pb")));
             //НЕЙРОННЫЕ СЕТИ
             if (previousImage != null)
-                _detectorMatches.Add(_neuralDetector.DetectObjects(image, previousImage, currentFrame));
+                _detectorMatches.Add(_neuralDetector.DetectObjects(image, previousImage, currentFrame, 1));
 
             var detectedObjects = _neuralDetector.DetectedObjects.Where(o => o.ClassId != 5).ToList();
 
@@ -256,6 +256,45 @@ namespace Toshka.dbgSave.Controllers
             return 0;
         }*/
 
+        private Dictionary<int, string> _colorGeneralClasses = new Dictionary<int, string>
+        {
+            // Общая
+            [1] = "#ff3300",//"Дым",
+            [2] = "#ff3300",//"Дым",
+            [3] = "#ff3300",//"Дым",
+            [4] = "#ff0000",//"Огонь",
+            [5] = "#00cc00",//"Автомобиль",
+            [6] = "#00cc66",//"Человек",
+            [7] = "#e60000",//"Оружие",
+            [8] = "#e60000",//"Нож",
+            [9] = "#00ff99",//"Граффити",
+            [10] = "#33ff77",//"Мусорный бак",
+            [11] = "#66ff99",//"Мусорный пакет",
+            [12] = "#4dff88",//"Мусор",
+            [13] = "#ff8080"//"Собака"
+           // Маски
+           /*[1] = "#33cc33",//"С маской",
+           [2] = "#55ff00"//"Без маски",
+           [3] = "#00cc66"//"Неправильно надета"*/
+        };
+
+        private Dictionary<int, string> _colorTrashTypeClasses = new Dictionary<int, string>
+        {
+            // Типы мусора
+            [1] = "#0066ff",//"Пластик",
+            [2] = "#4d94ff",//"Бумага",
+            [3] = "#99c2ff",//"Стекло",
+            [4] = "#005ce6",//"Металл"
+        };
+
+        private Dictionary<int, string> _colorMaskClasses = new Dictionary<int, string>
+        {
+            // Маски
+            [1] = "#33cc33",//"С маской",
+            [2] = "#55ff00",//"Без маски",
+            [3] = "#00cc66"//"Неправильно надета"
+        };
+
         private Bitmap DrawObjects(Bitmap image, IEnumerable<DetectedObject> detectedObjects, Camera camera)
         {
             this.DangerEventCountFrameFlag = false;
@@ -270,7 +309,18 @@ namespace Toshka.dbgSave.Controllers
 
                 foreach (var detectedObject in detectedObjects)
                 {
-                    var color = Color.Green;
+                    var color = ColorTranslator.FromHtml(_colorGeneralClasses[detectedObject.ClassId]);
+                    Rectangle box = _converter.ConvertRectangleToRelativeSize(detectedObject.Rectangle);
+                    var lineWidth = 1.5f;
+
+                    g.DrawRectangle(new Pen(color, (float)lineWidth), box);
+
+                    Point textPosition = new Point(box.X, box.Y - 15);
+                    //Size sizeOfText = TextRenderer.MeasureText(detectedObject.ClassName, new Font("Arial", 12f));
+                    //Rectangle rect = new Rectangle(textPosition, 12f);
+                    //g.FillRectangle(Brushes.Black, rect);
+                    //g.DrawString(detectedObject.ClassName, new Font("Arial", 12f), Brushes.White, textPosition);
+                    //var color = Color.Green;
 
                     if (detectedObject.ClassId == 1 || detectedObject.ClassId == 2 || detectedObject.ClassId == 3 ||
                         detectedObject.ClassId == 4 || detectedObject.ClassId == 7 || detectedObject.ClassId == 8 ||
@@ -293,9 +343,9 @@ namespace Toshka.dbgSave.Controllers
                         }
                     }
 
-                    Rectangle box = _converter.ConvertRectangleToRelativeSize(detectedObject.Rectangle);
-                    var lineWidth = 6f * detectedObject.Density;
-                    lineWidth = lineWidth == 0 ? 2f : lineWidth;
+                    //Rectangle box = _converter.ConvertRectangleToRelativeSize(detectedObject.Rectangle);
+                    //var lineWidth = 6f * detectedObject.Density;
+                    //lineWidth = lineWidth == 0 ? 2f : lineWidth;
                     if (selectedDetectedObjects.Contains(detectedObject))
                     {
                         using (Brush fillbrush = new SolidBrush(Color.FromArgb(80, color)))
