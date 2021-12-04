@@ -6,6 +6,8 @@ namespace Toshka.dbgSave.Model
     public class CameraFilterMarkup : BaseEntity
     {
         public long CameraId { get; set; }
+
+        // ToDo - to json
         public int dlx { get; set; }
         public int ulx { get; set; }
         public int dly { get; set; }
@@ -14,5 +16,7 @@ namespace Toshka.dbgSave.Model
         public int dry { get; set; }
         public int ury { get; set; }
         public int urx { get; set; }
+
+        public bool forCar;
     }
 }

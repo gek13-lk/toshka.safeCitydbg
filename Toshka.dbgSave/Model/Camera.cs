@@ -16,5 +16,9 @@ namespace Toshka.dbgSave.Model
         public string Subtype { get; set; }// Тип обнаруженного
         public string Settings { get; set; }// Настройки камеры: исключить типы обнаружаемого
         public bool Markup { get; set; } // отображать разметку на камере или нет
+
+        public double focalLength { get; set; } // фокусное расстояние
+
+        public double imageSensorSize { get; set; } // фокусное расстояние
     }
 }

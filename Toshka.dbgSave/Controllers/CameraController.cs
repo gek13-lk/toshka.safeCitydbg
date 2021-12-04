@@ -223,8 +223,17 @@ namespace Toshka.dbgSave.Controllers
 
             #region Tracking
 
-            //Фильтрация зон
-            //filterDetectedObjects(detectedObjects, camera);
+            // Пересечение ограничивающих прямоугольников - мусора и мусорных баков
+            calculateGarbageWithTrashIntersection(detectedObjects, camera);
+
+            // Подсчет трафика
+            calculateTraffic(detectedObjects);
+
+            // Фильтрация зон
+            filterDetectedObjects(detectedObjects, camera);
+
+            // Пересечение машин с газонами
+            detectIllegalParking(detectedObjects, camera);
 
             //if (_detectorMatches.Any())
             //{
@@ -235,26 +244,165 @@ namespace Toshka.dbgSave.Controllers
             #endregion
 
             //TODO: Рассчет дистанции до события
-            DetectedObject bottomEventObject = detectedObjects
-                .OrderByDescending(d => d.Rectangle.Bottom).FirstOrDefault();
+            // DetectedObject bottomEventObject = detectedObjects
+            //     .OrderByDescending(d => d.Rectangle.Bottom).FirstOrDefault();
 
+            calculateEventDistance(camera, detectedObjects, image);
             return DrawObjects(image, detectedObjects, camera);
         }
 
-        //TODO: filter zone 
+        // Расчет заполненности мусорного бака
+        private void calculateGarbageWithTrashIntersection(List<DetectedObject> detectedObjects, Camera camera)
+        {
+            List<DetectedObject> trashObjects = detectedObjects.FindAll(detectedObject => detectedObject.ClassId == 11 || detectedObject.ClassId == 12);
+            if (trashObjects.Count != 0)
+            {
+                List<DetectedObject> garbages = detectedObjects.FindAll(detectedObject => detectedObject.ClassId == 10);
+                foreach (DetectedObject garbage in garbages)
+                {
+                    foreach (DetectedObject trash in trashObjects)
+                    {
+                        if (TrackerUtils.IsIntersectDetectedObjects(garbage, trash))
+                        {
+                            if (garbage.Rectangle.Top < trash.Rectangle.Top)
+                            {
+                                Event evFullness = new Event();
+                                evFullness.CameraId = camera.Id;
+                                evFullness.StartTime = DateTime.Now;
+                                _context.Events.Add(evFullness);
+                                _context.SaveChanges();
+
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Подсчет пешеходного и транспортного трафика для будущего анализа
+        private void calculateTraffic(List<DetectedObject> detectedObjects)
+        {
+            int numberOfPeople = detectedObjects.FindAll(detectedObject => detectedObject.ClassId == 6).Count;
+            int numberOfCars = detectedObjects.FindAll(detectedObject => detectedObject.ClassId == 5).Count;
+            // toDo : используем ключевые точки, чтобы посчитать количество уникальных объектов
+        }
+
+
+        //Фильтрация обнаруженных областей с дымом (пересечение с разметкой - техногенными объектами, дым с которых анализировать не нужно)
         private List<DetectedObject> filterDetectedObjects(List<DetectedObject> detectedObjects, Camera camera)
         {
             List<DetectedObject> filterdObjects = new List<DetectedObject>();
 
+            List<CameraFilterMarkup> shapes = _context.CameraFilterMarkups.Where(e => e.CameraId == camera.Id && e.forCar == false).OrderBy(b => b.CameraId).ToList();
+            List<Shape> filterShapes = new List<Shape>();
+
+            foreach (var sshape in shapes)
+            {
+                Shape shape = new Shape();
+
+                PointF pointLeftDown = new PointF();
+                pointLeftDown.X = sshape.dlx;
+                pointLeftDown.Y = sshape.dly;
+
+                PointF pointLeftUp = new PointF();
+                pointLeftUp.X = sshape.ulx;
+                pointLeftUp.Y = sshape.uly;
+
+                PointF pointRightUp = new PointF();
+                pointRightUp.X = sshape.urx;
+                pointRightUp.Y = sshape.ury;
+
+                PointF pointRightDown = new PointF();
+                pointRightDown.X = sshape.drx;
+                pointRightDown.Y = sshape.dry;
+
+                shape.Points.AddRange(new[] { pointRightDown, pointRightUp, pointLeftUp, pointLeftDown });
+                filterShapes.Add(shape);
+            }
+
+            foreach (DetectedObject detectedObject in detectedObjects)
+            {
+                Shape matchedShape = TrackerUtils.FindMatchedShape(detectedObject, filterShapes, 0.2);
+                if (matchedShape == null)
+                {
+                    filterdObjects.Add(detectedObject);
+                }
+            }
+
             return filterdObjects;
         }
 
-        //TODO: distance
-        /*private Emgu.CV.Structure.Range calculateEventDistance(Camera camera, DetectedObject detectedObject)
+        // Обнаружение неправильной парковки (на газонах и т.д. Для этого используем разметку)
+        private void detectIllegalParking(List<DetectedObject> detectedObjects, Camera camera)
         {
-            
-            return 0;
-        }*/
+            List<DetectedObject> cars = detectedObjects.FindAll(detectedObject => detectedObject.ClassId == 5);
+
+            List<CameraFilterMarkup> shapes = _context.CameraFilterMarkups.Where(e => e.CameraId == camera.Id && e.forCar == true).OrderBy(b => b.CameraId).ToList();
+            List<Shape> illegalParkingShapes = new List<Shape>();
+
+            foreach (var sshape in shapes)
+            {
+                Shape shape = new Shape();
+
+                PointF pointLeftDown = new PointF();
+                pointLeftDown.X = sshape.dlx;
+                pointLeftDown.Y = sshape.dly;
+
+                PointF pointLeftUp = new PointF();
+                pointLeftUp.X = sshape.ulx;
+                pointLeftUp.Y = sshape.uly;
+
+                PointF pointRightUp = new PointF();
+                pointRightUp.X = sshape.urx;
+                pointRightUp.Y = sshape.ury;
+
+                PointF pointRightDown = new PointF();
+                pointRightDown.X = sshape.drx;
+                pointRightDown.Y = sshape.dry;
+
+                shape.Points.AddRange(new[] { pointRightDown, pointRightUp, pointLeftUp, pointLeftDown });
+                illegalParkingShapes.Add(shape);
+            }
+
+            foreach (DetectedObject detectedObject in cars)
+            {
+                Shape matchedShape = TrackerUtils.FindMatchedShape(detectedObject, illegalParkingShapes, 0.5);
+                if (matchedShape != null)
+                {
+                    Event evIllegalParking = new Event();
+                    evIllegalParking.CameraId = camera.Id;
+                    evIllegalParking.StartTime = DateTime.Now;
+                    _context.Events.Add(evIllegalParking);
+                    _context.SaveChanges();
+                }
+            }
+
+        }
+
+        // Расчет расстояния до объектов
+        private void calculateEventDistance(Camera camera, List<DetectedObject> detectedObjects, Bitmap image)
+        {
+            // distance to object (mm) = (focal length (mm) * real height of the object (mm) * image height (pixels)) / (object height (pixels) * sensor height (mm))
+
+            // ToDo : калибровка камеры, ее реальное фокусное расстояние и размер матрицы
+
+            foreach (DetectedObject detectedObject in detectedObjects) {
+                double realObjectHeight = 0;
+                if (detectedObject.ClassId == 5 || detectedObject.ClassId == 6)
+                {
+                    realObjectHeight = 1700;
+                } else
+                {
+                    return;
+                }
+
+                double focalLength = camera.focalLength.Equals(0) ? 2.8 : camera.focalLength;
+                double imageSensorSize = camera.imageSensorSize.Equals(0) ? 3.63 : camera.imageSensorSize;
+
+                double distance = (focalLength * realObjectHeight * image.Height) / (detectedObject.Rectangle.Height * imageSensorSize);
+            }
+        }
 
         private Dictionary<int, string> _colorGeneralClasses = new Dictionary<int, string>
         {
@@ -272,10 +420,6 @@ namespace Toshka.dbgSave.Controllers
             [11] = "#66ff99",//"Мусорный пакет",
             [12] = "#4dff88",//"Мусор",
             [13] = "#ff8080"//"Собака"
-           // Маски
-           /*[1] = "#33cc33",//"С маской",
-           [2] = "#55ff00"//"Без маски",
-           [3] = "#00cc66"//"Неправильно надета"*/
         };
 
         private Dictionary<int, string> _colorTrashTypeClasses = new Dictionary<int, string>
