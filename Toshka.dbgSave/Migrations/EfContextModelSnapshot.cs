@@ -53,6 +53,12 @@ namespace Toshka.dbgSave.Migrations
                     b.Property<string>("Type")
                         .HasColumnType("text");
 
+                    b.Property<double>("focalLength")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("imageSensorSize")
+                        .HasColumnType("double precision");
+
                     b.HasKey("Id");
 
                     b.ToTable("Cameras");
@@ -79,6 +85,9 @@ namespace Toshka.dbgSave.Migrations
 
                     b.Property<int>("dry")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("forCar")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("ulx")
                         .HasColumnType("integer");

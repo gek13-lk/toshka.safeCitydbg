@@ -17,6 +17,6 @@ namespace Toshka.dbgSave.Model
         public int ury { get; set; }
         public int urx { get; set; }
 
-        public bool forCar;
+        public bool forCar { get; set; }
     }
 }
